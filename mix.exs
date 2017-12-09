@@ -31,6 +31,7 @@ defmodule Flock.Mixfile do
   defp deps do
     [
       {:libring, "~> 1.0"},
+      {:libcluster, "~> 2.1"},
 
       # Development tooling
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
