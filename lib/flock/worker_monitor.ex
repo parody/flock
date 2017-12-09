@@ -1,6 +1,6 @@
 defmodule Flock.WorkerMonitor do
   @moduledoc """
-  This module is inteded to take care of the birds in the flock
+  This module is intended to take care of one bird in the flock
   """
 
   use GenServer
