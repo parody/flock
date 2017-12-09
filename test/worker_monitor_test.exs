@@ -7,7 +7,7 @@ defmodule Flock.WorkerMonitorTest do
     worker_name = "bird1"
     ref = make_ref()
     
-    {:ok, _} = WorkerMonitor.start_worker(MyBird, [self(), {:spawned, worker_name}], worker_name)
+    {:ok, _} = WorkerMonitor.start_worker({MyBird, [self(), {:spawned, worker_name}], worker_name})
     assert_receive {:spawned, ^worker_name}
 
     assert {:test, ^ref} = WorkerMonitor.call_worker(worker_name, {:please_reply, {:test, ref}})
