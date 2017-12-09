@@ -41,10 +41,4 @@ defmodule Flock.CRDTTest do
     assert :b not in CRDT.to_list(joined_crdt)
     assert :c in CRDT.to_list(joined_crdt)
   end
-
-  test "return a list of current elements in CRDT" do
-    crdt = %CRDT{added: [:b, :a, :c], removed: [:b]}
-
-    assert CRDT.to_list(crdt) == [:a, :c]
-  end
 end
