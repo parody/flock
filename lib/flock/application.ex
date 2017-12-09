@@ -6,10 +6,8 @@ defmodule Flock.Application do
   use Application
 
   def start(_type, _args) do
-    # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: Flock.Worker.start_link(arg)
-      # {Flock.Worker, arg},
+      {Registry, keys: :unique, name: FlockRegistry}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
