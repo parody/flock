@@ -30,7 +30,7 @@ defmodule Flock.CRDTTest do
   test "Join two CRDTs" do
     crdt1 = CRDT.new() |> CRDT.add(:a) |> CRDT.add(:b)
     crdt2 = CRDT.new() |> CRDT.add(:c) |> CRDT.add(:b) |> CRDT.remove(:b)
-    assert CRDT.join(crdt1, crdt2) == %CRDT{added: [:b, :a, :c], removed: [:b]}
+    assert CRDT.join(crdt1, crdt2) == %CRDT{added: [:a, :c], removed: [:b]}
   end
 
   test "Get a list of current elements in CRDT" do
