@@ -82,8 +82,9 @@ defmodule Flock.WorkerMonitor do
     {:noreply, s}
   end
 
-  def handle_info({:EXIT, worker_pid, :normal}, {worker_pid, _worker_name} = s) do
-    ## TODO call manager to remove this bird from the flock
+  def handle_info({:EXIT, worker_pid, :normal}, {worker_pid, worker_name} = s) do
+    # call manager to remove this bird from the flock
+    :ok = Flock.Manager.stop(worker_name)
     {:stop, :normal, s}
   end
 
