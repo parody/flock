@@ -8,7 +8,7 @@ defmodule Flock.Manager do
 
   use GenServer
 
-  alias Flock.{CRDT, Ring}
+  alias Flock.{CRDT, Ring, WorkerSupervisor}
 
   require Logger
 
@@ -95,9 +95,8 @@ defmodule Flock.Manager do
         {:reply, {:error, reason}, state}
       active ->
         local = rebalance(active, state.local)
-        # TODO: rebalance
         # TODO: comunicate changes
-        {:reply, :ok, %{state | active: active}}
+        {:reply, :ok, %{state | active: active, local: local}}
     end
   end
   def handle_call({:stop_worker, name}, _from, state) do
@@ -107,10 +106,11 @@ defmodule Flock.Manager do
         {:reply, {:error, reason}, state}
       active ->
         # TODO: comunicate changes
-        # Update locals.
-        {:reply, :ok, %{state | active: active}}
+        local = rebalance(active, state.local)
+        {:reply, :ok, %{state | active: active, local: local}}
     end
   end
+
   ##
   ## Internal functions
   ##
@@ -118,31 +118,31 @@ defmodule Flock.Manager do
   # Compute which workers must be running on the local node.
   defp mine(active) do
     Enum.filter(active, fn {_module, _arg, name} ->
-      node() == Ring.get_node(name)
+      {:ok, node()} == Ring.get_node(name)
     end)
   end
 
   # Kill process not own by this node and start the ones that are own
   # by this node
   defp rebalance(active, local) do
-    alive = CRDT.to_list(active)
-
+    alive = CRDT.to_list(active) |> IO.inspect()
+    new_local = mine(alive)
     # Kill the workers on this node because they have migrated to some other
     # node.
-    # for name <- (local -- mine(alive)) do
-    #   [{pid, _}] = Registry.lookup(Flock.Registry, name)
-    #   debug("killing process #{name} due to migration ")
-    #   # TODO :ok = WorkerSupervisor.terminate_worker(pid)
-    # end
+    for {module, args, name} <- (local -- new_local) do
+      [{pid, _}] = Registry.lookup(Flock.Registry, name)
+      debug("killing process #{name} due to migration ")
+      :ok = WorkerSupervisor.terminate_worker(pid)
+    end
 
-    # # Start the new workers that after the node up/down are migrated to the
-    # # local node.
-    # for {m, a, i} <- (mine(alive) -- local) do
-    #   debug("starting process #{name}")
-    #   {:ok, _pid} = WorkerSupervisor.start_worker([{m, a, i}])
-    # end
+    # Start the new workers that after the node up/down are migrated to the
+    # local node.
+    for {module, args, name} <- (new_local -- local) do
+      debug("starting process #{name}")
+      {:ok, _pid} = WorkerSupervisor.start_worker({module, args, name})
+    end
 
-    mine(alive)
+    new_local
   end
 
 
