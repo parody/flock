@@ -13,7 +13,8 @@ defmodule Flock.CRDT do
     end
   end
 
-  @spec remove(__MODULE__.t(), element :: any()) :: __MODULE__.t() | {:error, reason :: String.t()}
+  @spec remove(__MODULE__.t(), element :: any()) ::
+          __MODULE__.t() | {:error, reason :: String.t()}
   def remove(%__MODULE__{} = s, e) do
     case e in s.added do
       false -> {:error, "Element does not exists."}
@@ -24,7 +25,7 @@ defmodule Flock.CRDT do
   @spec join(__MODULE__.t(), __MODULE__.t()) :: __MODULE__.t()
   def join(%__MODULE__{} = s1, %__MODULE__{} = s2) do
     %__MODULE__{
-      added: Enum.uniq(s1.added ++ s2.added -- (s1.removed ++ s2.removed)),
+      added: Enum.uniq(s1.added ++ (s2.added -- (s1.removed ++ s2.removed))),
       removed: Enum.uniq(s1.removed ++ s2.removed)
     }
   end
