@@ -50,6 +50,15 @@ defmodule Flock.CRDT do
     end
   end
 
+  @doc "Get an `element` from the CRDT using a fun as filter"
+  @spec get_by(__MODULE__.t(), predicate :: fun()) :: {:ok, any()} | {:error, :not_found}
+  def get_by(%__MODULE__{} = set, predicate) do
+    case Enum.filter(set.added, predicate) do
+      [] -> {:error, :not_found}
+      element -> {:ok, element}
+    end
+  end
+
   @doc "Join two sets"
   @spec join(__MODULE__.t(), __MODULE__.t()) :: __MODULE__.t()
   def join(%__MODULE__{} = s1, %__MODULE__{} = s2) do

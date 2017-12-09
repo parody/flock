@@ -32,6 +32,11 @@ defmodule Flock.Manager do
   def stop(name),
     do: GenServer.call(@name, {:stop_worker, name})
 
+  @doc "Removes a process on normal exit"
+  @spec remove(name :: Flock.worker_name()) :: :ok | {:error, :not_found}
+  def remove(name),
+    do: GenServer.call(@name, {:remove_worker, name})
+
   @doc "Call to a worker"
   @spec call(name :: Flock.worker_name(), request :: term()) :: any()
   def call(name, request) do
@@ -120,6 +125,18 @@ defmodule Flock.Manager do
         {:reply, :ok, %{state | active: active, local: local}}
     end
   end
+  def handle_call({:remove_worker, name}, _from, state) do
+    with {:ok, worker} <- CRDT.get_by(state.active, fn {_m, _a, n} -> n == name end),
+         active <- CRDT.remove(state.active, worker)
+    do
+      debug("process removed #{inspect name}")
+      Dispatch.broadcast({:update, active})
+      {:reply, :ok, %{state | active: active, local: state.local -- worker}}
+    else
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+    end
+  end
 
   ##
   ## Internal functions
@@ -169,5 +186,3 @@ defmodule Flock.Manager do
   # Format a debug message
   defp debug(msg), do: Logger.warn("[#{@name}] #{msg}")
 end
-
-
