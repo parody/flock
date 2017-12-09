@@ -137,10 +137,9 @@ defmodule Flock.Manager do
     new_local = mine(alive)
     # Kill the workers on this node because they have migrated to some other
     # node.
-    for {module, args, name} <- (local -- new_local) do
-      [{pid, _}] = Registry.lookup(Flock.Registry, name)
+    for {_module, _args, name} <- (local -- new_local) do
       debug("killing process #{name}")
-      # :ok = WorkerSupervisor.terminate_worker(pid)
+      :ok = WorkerSupervisor.terminate_worker(name)
     end
 
     # Start the new workers that after the node up/down are migrated to the
