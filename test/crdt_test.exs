@@ -11,20 +11,20 @@ defmodule Flock.CRDTTest do
     assert CRDT.new() == %CRDT{added: [], removed: []}
   end
 
-  test "add element to CRDT", %{crdt: crdt} do
-    assert CRDT.add(crdt, :a) == %CRDT{added: [:a], removed: []}
+  test "Add element to CRDT" do
+    crdt = CRDT.new()
+    assert :a in (CRDT.add(crdt, :a) |> CRDT.to_list())
   end
 
   test "fail add existing element to CRDT", %{crdt: crdt} do
     crdt = CRDT.add(crdt, :a)
-
     assert CRDT.add(crdt, :a) == {:error, :already_exists}
   end
 
   test "remove element", %{crdt: crdt} do
     crdt = CRDT.add(crdt, :a)
 
-    assert CRDT.remove(crdt, :a) == %CRDT{added: [], removed: [:a]}
+    assert :a not in (CRDT.remove(crdt, :a) |> CRDT.to_list())
   end
 
   test "fail remove non existent element", %{crdt: crdt} do
@@ -34,8 +34,11 @@ defmodule Flock.CRDTTest do
   test "join two CRDTs", %{crdt: crdt} do
     crdt1 = crdt |> CRDT.add(:a) |> CRDT.add(:b)
     crdt2 = crdt |> CRDT.add(:c) |> CRDT.add(:b) |> CRDT.remove(:b)
+    joined_crdt = CRDT.join(crdt1, crdt2)
 
-    assert CRDT.join(crdt1, crdt2) == %CRDT{added: [:a, :c], removed: [:b]}
+    assert :a in CRDT.to_list(joined_crdt)
+    assert :b not in CRDT.to_list(joined_crdt)
+    assert :c in CRDT.to_list(joined_crdt)
   end
 
   test "return a list of current elements in CRDT" do
