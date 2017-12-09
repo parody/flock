@@ -23,9 +23,9 @@ defmodule Flock.Manager do
   ## Public API
   ##
   @doc "Spawn a new process"
-  @spec start_worker(module :: Flock.worker_module(), args :: list(), name :: Flock.worker_name()) :: :ok | {:error, :already_exists}
-  def start_worker(module, args, name),
-    do: GenServer.call(@name, {:start_worker, module, args, name})
+  @spec start_worker(worker_spec :: Flock.worker_spec()) :: :ok | {:error, :already_exists}
+  def start_worker(worker_spec),
+    do: GenServer.call(@name, {:start_worker, worker_spec})
 
   @doc "Stops a process"
   @spec stop(name :: Flock.worker_name()) :: :ok | {:error, :not_found}
@@ -95,8 +95,8 @@ defmodule Flock.Manager do
     {:noreply, state}
   end
 
-  def handle_call({:start_worker, module, args, name}, _from, state) do
-    case CRDT.add(state.active, {module, args, name}) do
+  def handle_call({:start_worker, {_module, _args, name} = worker_spec}, _from, state) do
+    case CRDT.add(state.active, worker_spec) do
       {:error, reason} ->
         {:reply, {:error, reason}, state}
       active ->
