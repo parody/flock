@@ -3,7 +3,7 @@ defmodule Flock.WorkerMonitorTest do
 
   alias Flock.WorkerMonitor
 
-  test "worker is alive and replaying" do
+  test "worker is alive and replying" do
     worker_name = "bird1"
     ref = make_ref()
     
