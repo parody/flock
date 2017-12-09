@@ -18,24 +18,37 @@ defmodule Flock.CRDT do
   @doc "Add a new `element` to the CRDT"
   @spec add(__MODULE__.t(), element :: any()) :: __MODULE__.t() | {:error, :already_exists}
   def add(%__MODULE__{} = set, element) do
-    case element in set.added do
+    case in_set?(set.added, element) do
       true ->
         {:error, :already_exists}
 
       _ ->
-        %__MODULE__{set | added: [element | set.added]}
+        %__MODULE__{set | added: [{UUID.uuid4(), element} | set.added]}
     end
   end
 
   @doc "Remove an `element` from the CRDT"
   @spec remove(__MODULE__.t(), element :: any()) :: __MODULE__.t() | {:error, :not_found}
   def remove(%__MODULE__{} = set, element) do
-    case element in set.added do
+    case in_set?(set.added, element) do
       false ->
         {:error, :not_found}
 
       _ ->
-        %__MODULE__{set | added: set.added -- [element], removed: [element | set.removed]}
+        elem_ids = get_all(set.added, element)
+        %__MODULE__{set | added: set.added -- elem_ids, removed: elem_ids ++ set.removed}
+    end
+  end
+
+  @doc "Remove an `element` from the CRDT using a `predicate` as filter"
+  @spec remove_by(__MODULE__.t(), predicate :: fun()) :: __MODULE__.t() | {:error, :not_found}
+  def remove_by(%__MODULE__{} = set, predicate) do
+    case filter(set.added, predicate) do
+      [] ->
+        {:error, :not_found}
+      removed ->
+        elem_ids = get_all(set.added, removed)
+        %__MODULE__{set | added: set.added -- elem_ids, removed: elem_ids ++ set.removed}
     end
   end
 
@@ -50,5 +63,23 @@ defmodule Flock.CRDT do
 
   @doc "Return the set elements as a list"
   @spec to_list(__MODULE__.t()) :: list()
-  def to_list(%__MODULE__{} = set), do: set.added -- set.removed
+  def to_list(%__MODULE__{} = set), do:
+    set.added
+    |> Enum.map(&elem(&1, 1))
+    |> Enum.uniq()
+  #
+  # Internal functions
+  #
+
+  defp in_set?(set, element) do
+    List.keymember?(set, element, 1)
+  end
+
+  defp get_all(set, element) do
+    Enum.filter(set, fn {id, e} -> e == element end)
+  end
+
+  defp filter(set, predicate) do
+    Enum.filter(set, fn {id, e} -> predicate.(e) end)
+  end
 end
