@@ -12,7 +12,7 @@ defmodule MyBird do
     {:ok, test_pid}
   end
   def init(_init) do
-    {:ok,nil}
+    {:ok, nil}
   end
 
   def handle_call({:please_reply, msg}, _from, s) do

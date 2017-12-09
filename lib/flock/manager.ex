@@ -86,13 +86,16 @@ defmodule Flock.Manager do
         debug("node #{n} went down or is unreachable")
         Ring.remove_node(n)
     end
+    local = rebalance(state.active, state.local)
 
-    {:noreply, state}
+    {:noreply, %{state | local: local}}
   end
-  def handle_info({:"$flock", n, {:update, msg}}, state) do
-    debug("received #{inspect msg} from #{inspect n}")
+  def handle_info({:"$flock", n, {:update, set}}, state) do
+    debug("received update from #{inspect n}")
+    active = CRDT.join(set, state.active)
+    local = rebalance(active, state.local)
 
-    {:noreply, state}
+    {:noreply, %{state | active: active, local: local}}
   end
 
   def handle_call({:start_worker, {_module, _args, name} = worker_spec}, _from, state) do
@@ -107,7 +110,6 @@ defmodule Flock.Manager do
     end
   end
   def handle_call({:stop_worker, name}, _from, state) do
-    # TODO: remove by name, not the tuple
     case CRDT.remove_by(state.active, fn {_m, _a, n} -> n == name end) do
       {:error, reason} ->
         {:reply, {:error, reason}, state}
@@ -149,6 +151,10 @@ defmodule Flock.Manager do
       {:ok, _pid} = WorkerSupervisor.start_worker({module, args, name})
     end
 
+    if length(alive) > 0 do
+      p = Float.round(length(new_local) / length(alive) * 100, 2)
+      debug("node #{node()} has #{p} % of the load")
+    end
     new_local
   end
 
@@ -156,11 +162,12 @@ defmodule Flock.Manager do
   defp nodes(), do: [Node.self() | Node.list(:connected)]
 
   # Send an auto-message after @entropy_ms ms
+  # TODO: make this timeout random so different nodes do not resonate.
   defp setup_anti_entropy_timer(),
     do: Process.send_after(self(), :anti_entropy, @entropy_ms)
 
   # Format a debug message
-  defp debug(msg), do: Logger.debug("[#{@name}] #{msg}")
+  defp debug(msg), do: Logger.warn("[#{@name}] #{msg}")
 end
 
 

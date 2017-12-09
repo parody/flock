@@ -4,7 +4,6 @@ defmodule Flock.RingTest do
   alias Flock.Ring
 
   test "singleton table" do
-    assert :ok = Ring.new()
     assert {:error, :already_started} = Ring.new()
 
     assert :ok = Ring.add_node(:a@localhost)

@@ -12,3 +12,6 @@ config :libcluster,
         # use this to change the number of jumps the
         # multicast packets will make
         multicast_ttl: 1]]]
+
+config :logger,
+  level: :warn
