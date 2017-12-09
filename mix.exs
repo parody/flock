@@ -33,8 +33,8 @@ defmodule Flock.Mixfile do
       {:libring, "~> 1.0"},
 
       # Development tooling
-      {:dialyxir, "~> 0.5"},
-      {:ex_doc, "~> 0.18"}
+      {:dialyxir, "~> 0.5", only: [:dev, :test]},
+      {:ex_doc, "~> 0.18", only: [:dev, :test]}
     ]
   end
 
