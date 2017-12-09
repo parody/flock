@@ -7,7 +7,7 @@ defmodule Flock.Application do
 
   def start(_type, _args) do
     children = [
-      {Registry, keys: :unique, name: FlockRegistry},
+      {Registry, keys: :unique, name: Flock.Registry},
       WorkerSupervisor,
       {Manager, []}
     ]

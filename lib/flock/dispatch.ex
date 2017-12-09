@@ -16,7 +16,7 @@ defmodule Flock.Dispatch do
   """
   @spec broadcast(message :: term()) :: :ok
   def broadcast(message, nodes \\ Node.list()) do
-    msg = {:"$flock", message}
+    msg = {:"$flock", node(), message}
     _ = for n <- nodes, is_atom(n), do: send({@manager, n}, msg)
 
     :ok
@@ -25,7 +25,7 @@ defmodule Flock.Dispatch do
   @doc "Forwards the `message` to the flock manager in `node`"
   @spec forward(node(), message :: term()) :: :ok
   def forward(node, message) when is_atom(node) do
-    send({@manager, node}, {:"$flock", message})
+    send({@manager, node}, {:"$flock", node(), message})
 
     :ok
   end

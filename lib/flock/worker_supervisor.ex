@@ -40,7 +40,7 @@ defmodule Flock.WorkerSupervisor do
     end
   end
 
-  def init(_arg) do 
+  def init(_arg) do
     Supervisor.init([
       WorkerMonitor
     ], strategy: :simple_one_for_one)

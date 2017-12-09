@@ -39,6 +39,17 @@ defmodule Flock.CRDT do
     end
   end
 
+  @doc "Remove an `element` from the CRDT using a fun as filter"
+  @spec remove_by(__MODULE__.t(), predicate :: fun()) :: __MODULE__.t() | {:error, :not_found}
+  def remove_by(%__MODULE__{} = set, predicate) do
+    case Enum.filter(set.added, predicate) do
+      [] ->
+        {:error, :not_found}
+      removed ->
+        %__MODULE__{set | added: (set.added -- removed), removed: (set.removed ++ removed)}
+    end
+  end
+
   @doc "Join two sets"
   @spec join(__MODULE__.t(), __MODULE__.t()) :: __MODULE__.t()
   def join(%__MODULE__{} = s1, %__MODULE__{} = s2) do

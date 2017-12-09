@@ -48,7 +48,7 @@ defmodule Flock.WorkerMonitor do
   """
   @spec whereis(worker_name :: worker_name()) :: pid() | :not_found
   def whereis(worker_name) do
-    case Registry.lookup(FlockRegistry, worker_name) do
+    case Registry.lookup(Flock.Registry, worker_name) do
       [] -> :not_found
       [{pid, _}] -> pid
     end
@@ -61,19 +61,19 @@ defmodule Flock.WorkerMonitor do
   def init({module, args, worker_name}) do
     # Don't crash on bird crashes
     Process.flag(:trap_exit, true)
-    
+
     with {:ok, worker_pid} <- module.start_link(args) do
       {:ok, {worker_pid, worker_name}}
     end
   end
 
   def handle_call({msg, timeout}, from, {worker_pid, _worker_name} = s) do
-    _ = 
+    _ =
       Task.start(fn ->
         response = GenServer.call(worker_pid, msg, timeout)
         GenServer.reply(from, response)
       end)
-    
+
     {:noreply, s}
   end
 
@@ -97,6 +97,6 @@ defmodule Flock.WorkerMonitor do
   #
 
   defp via_tuple(worker_name) do
-    {:via, Registry, {FlockRegistry, worker_name}}
+    {:via, Registry, {Flock.Registry, worker_name}}
   end
 end

@@ -8,7 +8,7 @@ defmodule Flock.Manager do
 
   use GenServer
 
-  alias Flock.{CRDT, Ring, WorkerSupervisor}
+  alias Flock.{CRDT, Dispatch, Ring, WorkerSupervisor}
 
   require Logger
 
@@ -52,6 +52,8 @@ defmodule Flock.Manager do
     do: GenServer.start_link(__MODULE__, opts, name: @name)
 
   def init(_opts) do
+    debug("Flock starting on node #{node()}")
+
     # Receive node up/down messages.
     :net_kernel.monitor_nodes(true)
 
@@ -62,14 +64,13 @@ defmodule Flock.Manager do
     # Start anti-entropy timer
     setup_anti_entropy_timer()
 
-    debug("Flock starting on node #{node()}")
     {:ok, %__MODULE__{active: CRDT.new(), local: []}}
   end
 
   def handle_info(:anti_entropy, state) do
-    # TODO: Actually do anti_entropy
-
     debug("Flock performing anti_entropy on node #{node()}")
+
+    Dispatch.broadcast({:update, state.active})
 
     setup_anti_entropy_timer()
 
@@ -78,7 +79,7 @@ defmodule Flock.Manager do
   def handle_info({up_down, n}, state)  when up_down in ~w(nodeup nodedown)a do
     case up_down do
       :nodeup ->
-        # TODO: Be kind and send your CRDT.
+        Dispatch.forward(n, {:update, state.active})
         debug("connected to a new node #{n}")
         Ring.add_node(n)
       :nodedown ->
@@ -88,24 +89,31 @@ defmodule Flock.Manager do
 
     {:noreply, state}
   end
+  def handle_info({:"$flock", n, {:update, msg}}, state) do
+    debug("received #{inspect msg} from #{inspect n}")
+
+    {:noreply, state}
+  end
 
   def handle_call({:start_worker, module, args, name}, _from, state) do
     case CRDT.add(state.active, {module, args, name}) do
       {:error, reason} ->
         {:reply, {:error, reason}, state}
       active ->
+        debug("new process created #{inspect name}")
         local = rebalance(active, state.local)
-        # TODO: comunicate changes
+        Dispatch.broadcast({:update, active})
         {:reply, :ok, %{state | active: active, local: local}}
     end
   end
   def handle_call({:stop_worker, name}, _from, state) do
     # TODO: remove by name, not the tuple
-    case CRDT.remove(state.active, name) do
+    case CRDT.remove_by(state.active, fn {_m, _a, n} -> n == name end) do
       {:error, reason} ->
         {:reply, {:error, reason}, state}
       active ->
-        # TODO: comunicate changes
+        debug("process stopped #{inspect name}")
+        Dispatch.broadcast({:update, active})
         local = rebalance(active, state.local)
         {:reply, :ok, %{state | active: active, local: local}}
     end
@@ -125,14 +133,14 @@ defmodule Flock.Manager do
   # Kill process not own by this node and start the ones that are own
   # by this node
   defp rebalance(active, local) do
-    alive = CRDT.to_list(active) |> IO.inspect()
+    alive = CRDT.to_list(active)
     new_local = mine(alive)
     # Kill the workers on this node because they have migrated to some other
     # node.
     for {module, args, name} <- (local -- new_local) do
       [{pid, _}] = Registry.lookup(Flock.Registry, name)
-      debug("killing process #{name} due to migration ")
-      :ok = WorkerSupervisor.terminate_worker(pid)
+      debug("killing process #{name}")
+      # :ok = WorkerSupervisor.terminate_worker(pid)
     end
 
     # Start the new workers that after the node up/down are migrated to the
@@ -144,7 +152,6 @@ defmodule Flock.Manager do
 
     new_local
   end
-
 
   # List of all connected nodes including local node.
   defp nodes(), do: [Node.self() | Node.list(:connected)]
