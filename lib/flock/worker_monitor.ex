@@ -3,22 +3,24 @@ defmodule Flock.WorkerMonitor do
   This module is intended to take care of one bird in the flock
   """
 
-  use GenServer
+  use GenServer, start: {__MODULE__, :start_worker, []}, restart: :transient
 
   @name __MODULE__
+
+  @type worker_module :: module()
+  @type worker_name :: term()
+  @type worker_spec :: {module :: worker_module(), args :: list(), worker_name :: worker_name()}
 
   #
   # API
   #
 
   @doc """
-  Spawn a new worker based on `module` using `args`
-
-  The `name` is used for registering the process in the flock
+  Spawn a new worker based on `worker_spec`
   """
-  @spec start_worker(module(), args :: list(), name :: term()) :: GenServer.on_start()
-  def start_worker(module, args, name) do
-    GenServer.start_link(@name, {module, args, name}, name: via_tuple(name))
+  @spec start_worker(worker_spec :: worker_spec()) :: GenServer.on_start()
+  def start_worker({_module, _args, name} = worker_spec) do
+    GenServer.start_link(@name, worker_spec, name: via_tuple(name))
   end
 
   @doc """
@@ -26,7 +28,7 @@ defmodule Flock.WorkerMonitor do
 
   The call will block `timeout` milliseconds before returning
   """
-  @spec call_worker(name :: term(), msg :: any(), timeout :: pos_integer() | :infinity) :: term()
+  @spec call_worker(name :: worker_name(), msg :: any(), timeout :: pos_integer() | :infinity) :: term()
   def call_worker(name, msg, timeout \\ 5_000) do
     GenServer.call(via_tuple(name), {msg, timeout}, timeout)
   end
@@ -36,18 +38,20 @@ defmodule Flock.WorkerMonitor do
 
   This is the homologous to `GenServer.cast/2`
   """
-  @spec cast_worker(name :: term(), msg :: any()) :: :ok
+  @spec cast_worker(name :: worker_name(), msg :: any()) :: :ok
   def cast_worker(name, msg) do
     GenServer.cast(via_tuple(name), msg)
   end
 
-  @doc false
-  def child_spec(module, args, name) do
-    %{
-      start: {__MODULE__, :start_worker, [module, args, name]},
-      type: :worker,
-      restart: :transient
-    }
+  @doc """
+  Returns the `pid` of a worker or `:not_found` if no process is associated with the given `worker_name`
+  """
+  @spec whereis(worker_name :: worker_name()) :: pid() | :not_found
+  def whereis(worker_name) do
+    case Registry.lookup(FlockRegistry, worker_name) do
+      [] -> :not_found
+      [{pid, _}] -> pid
+    end
   end
 
   #
