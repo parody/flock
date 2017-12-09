@@ -23,14 +23,14 @@ defmodule Flock.WorkerSupervisor do
   @doc """
   Starts a child worker based on `worker_spec`
   """
-  @spec start_worker(worker_spec :: WorkerMonitor.worker_spec()) :: Supervisor.on_start_child()
+  @spec start_worker(worker_spec :: Flock.worker_spec()) :: Supervisor.on_start_child()
   def start_worker(worker_spec),
       do: Supervisor.start_child(@name, [worker_spec])
 
   @doc """
   Terminates the worker with name `worker_name`
   """
-  @spec terminate_worker(worker_name :: WorkerMonitor.worker_name()) :: :ok | {:error, :not_found}
+  @spec terminate_worker(worker_name :: Flock.worker_name()) :: :ok | {:error, :not_found}
   def terminate_worker(worker_name) do
     case WorkerMonitor.whereis(worker_name) do
       :not_found ->

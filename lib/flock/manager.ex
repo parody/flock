@@ -23,23 +23,23 @@ defmodule Flock.Manager do
   ## Public API
   ##
   @doc "Spawn a new process"
-  @spec start_worker(module :: module(), args :: list(), name :: term()) :: :ok | {:error, :already_exists}
+  @spec start_worker(module :: Flock.worker_module(), args :: list(), name :: Flock.worker_name()) :: :ok | {:error, :already_exists}
   def start_worker(module, args, name),
     do: GenServer.call(@name, {:start_worker, module, args, name})
 
   @doc "Stops a process"
-  @spec stop(name :: term()) :: :ok | {:error, :not_found}
+  @spec stop(name :: Flock.worker_name()) :: :ok | {:error, :not_found}
   def stop(name),
     do: GenServer.call(@name, {:stop_worker, name})
 
   @doc "Call to a worker"
-  @spec call(name :: term(), request :: term()) :: any()
+  @spec call(name :: Flock.worker_name(), request :: term()) :: any()
   def call(name, request) do
     :ok
   end
 
   @doc "Cast to a worker"
-  @spec cast(name :: term(), request :: term()) :: :ok
+  @spec cast(name :: Flock.worker_name(), request :: term()) :: :ok
   def cast(name, request) do
     :ok
   end
