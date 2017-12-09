@@ -113,13 +113,20 @@ guarantees:
 
 ## Hash ring
 
+Processes are assigned to nodes using a consistent hash ring. We are using
+[libring](https://github.com/bitwalker/libring) library to this end.
+
 ## Node clustering
 
-It currently uses disterl for cross-node communication.
+Flock is uses disterl for cross-node communication. Node discovery
+is provided by the [libcluster](https://github.com/bitwalker/libcluster) library
+also by [bitwalker](https://github.com/bitwalker) so double thanks to him.
 
 ## CRDT
 
-Home-baked less-than-ideal state-based CRDT
+A CRDT is used to keep track of alive processes. CRDT allow merge the information
+of a partition in converging to a *safe* result. Flock uses an Add-Wins Observed/Removed
+set. The curren implementation is a Home-baked less-than-ideal state-based AWORSet.
 
 # Test and benchmarks
 
