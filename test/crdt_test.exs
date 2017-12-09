@@ -18,6 +18,7 @@ defmodule Flock.CRDTTest do
 
   test "fail add existing element to CRDT", %{crdt: crdt} do
     crdt = CRDT.add(crdt, :a)
+
     assert CRDT.add(crdt, :a) == {:error, :already_exists}
   end
 
