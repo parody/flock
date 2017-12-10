@@ -9,7 +9,10 @@ defmodule Flock.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: dialyzer()
+      dialyzer: dialyzer(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test,
+        "coveralls.post": :test, "coveralls.html": :test]
     ]
   end
 
@@ -31,8 +34,11 @@ defmodule Flock.Mixfile do
   defp deps do
     [
       {:libring, "~> 1.0"},
+      {:libcluster, "~> 2.1"},
 
       # Development tooling
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.7", only: :test},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
       {:ex_doc, "~> 0.18", only: [:dev, :test]},
       {:uuid, "~> 1.1"},

@@ -7,10 +7,6 @@ defmodule Flock.WorkerMonitor do
 
   @name __MODULE__
 
-  @type worker_module :: module()
-  @type worker_name :: term()
-  @type worker_spec :: {module :: worker_module(), args :: list(), worker_name :: worker_name()}
-
   #
   # API
   #
@@ -18,7 +14,7 @@ defmodule Flock.WorkerMonitor do
   @doc """
   Spawn a new worker based on `worker_spec`
   """
-  @spec start_worker(worker_spec :: worker_spec()) :: GenServer.on_start()
+  @spec start_worker(worker_spec :: Flock.worker_spec()) :: GenServer.on_start()
   def start_worker({_module, _args, name} = worker_spec) do
     GenServer.start_link(@name, worker_spec, name: via_tuple(name))
   end
@@ -28,7 +24,7 @@ defmodule Flock.WorkerMonitor do
 
   The call will block `timeout` milliseconds before returning
   """
-  @spec call_worker(name :: worker_name(), msg :: any(), timeout :: pos_integer() | :infinity) :: term()
+  @spec call_worker(name :: Flock.worker_name(), msg :: any(), timeout :: pos_integer() | :infinity) :: term()
   def call_worker(name, msg, timeout \\ 5_000) do
     GenServer.call(via_tuple(name), {msg, timeout}, timeout)
   end
@@ -38,7 +34,7 @@ defmodule Flock.WorkerMonitor do
 
   This is the homologous to `GenServer.cast/2`
   """
-  @spec cast_worker(name :: worker_name(), msg :: any()) :: :ok
+  @spec cast_worker(name :: Flock.worker_name(), msg :: any()) :: :ok
   def cast_worker(name, msg) do
     GenServer.cast(via_tuple(name), msg)
   end
@@ -46,9 +42,9 @@ defmodule Flock.WorkerMonitor do
   @doc """
   Returns the `pid` of a worker or `:not_found` if no process is associated with the given `worker_name`
   """
-  @spec whereis(worker_name :: worker_name()) :: pid() | :not_found
+  @spec whereis(worker_name :: Flock.worker_name()) :: pid() | :not_found
   def whereis(worker_name) do
-    case Registry.lookup(FlockRegistry, worker_name) do
+    case Registry.lookup(Flock.Registry, worker_name) do
       [] -> :not_found
       [{pid, _}] -> pid
     end
@@ -61,19 +57,19 @@ defmodule Flock.WorkerMonitor do
   def init({module, args, worker_name}) do
     # Don't crash on bird crashes
     Process.flag(:trap_exit, true)
-    
+
     with {:ok, worker_pid} <- module.start_link(args) do
       {:ok, {worker_pid, worker_name}}
     end
   end
 
   def handle_call({msg, timeout}, from, {worker_pid, _worker_name} = s) do
-    _ = 
+    _ =
       Task.start(fn ->
         response = GenServer.call(worker_pid, msg, timeout)
         GenServer.reply(from, response)
       end)
-    
+
     {:noreply, s}
   end
 
@@ -82,8 +78,9 @@ defmodule Flock.WorkerMonitor do
     {:noreply, s}
   end
 
-  def handle_info({:EXIT, worker_pid, :normal}, {worker_pid, _worker_name} = s) do
-    ## TODO call manager to remove this bird from the flock
+  def handle_info({:EXIT, worker_pid, :normal}, {worker_pid, worker_name} = s) do
+    # call manager to remove this bird from the flock
+    _ = Flock.Manager.remove(worker_name)
     {:stop, :normal, s}
   end
 
@@ -97,6 +94,6 @@ defmodule Flock.WorkerMonitor do
   #
 
   defp via_tuple(worker_name) do
-    {:via, Registry, {FlockRegistry, worker_name}}
+    {:via, Registry, {Flock.Registry, worker_name}}
   end
 end

@@ -17,6 +17,18 @@ defmodule Flock.CRDTTest do
     assert :a in (CRDT.add(crdt, :a) |> CRDT.to_list())
   end
 
+  test "Get element by" do
+    crdt = CRDT.new()
+
+    assert {:error, :not_found} = crdt |> CRDT.get_by(fn e -> e == :a end)
+
+    assert {:ok, :b} =
+      CRDT.add(crdt, :a)
+      |> CRDT.add(:b)
+      |> CRDT.add(:c)
+      |> CRDT.get_by(fn e -> e == :b end)
+  end
+
   test "fail add existing element to CRDT", %{crdt: crdt} do
     crdt = CRDT.add(crdt, :a)
 
@@ -27,6 +39,12 @@ defmodule Flock.CRDTTest do
     crdt = CRDT.add(crdt, :a)
 
     assert :a not in (CRDT.remove(crdt, :a) |> CRDT.to_list())
+  end
+
+  test "remove element by", %{crdt: crdt} do
+    crdt = CRDT.add(crdt, :a)
+
+    assert :a not in (CRDT.remove_by(crdt, fn e -> e == :a end) |> CRDT.to_list())
   end
 
   test "Add a previously removed element", %{crdt: crdt} do
@@ -41,6 +59,10 @@ defmodule Flock.CRDTTest do
 
   test "fail remove non existent element", %{crdt: crdt} do
     assert CRDT.remove(crdt, :a) == {:error, :not_found}
+  end
+
+  test "fail remove by non existent element", %{crdt: crdt} do
+    assert CRDT.remove_by(crdt, fn e -> e == :a end) == {:error, :not_found}
   end
 
   test "join two CRDTs", %{crdt: crdt} do
