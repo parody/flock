@@ -61,7 +61,13 @@ defmodule Flock.Manager do
     :ok
   end
 
-  def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: @name)
+  @doc "Returns if the process named `name` is alive using local node information"
+  @spec alive?(name :: Flock.worker_name()) :: boolean() | {:error, reason :: String.t}
+  def alive?(name),
+    do: GenServer.call(@name, {:alive?, name})
+
+  @doc "Starts the Flock.Manager"
+  def start_link(opts), do: GenServer.start_link(@name, opts, name: @name)
 
   #
   # GenServer callbacks
@@ -119,6 +125,15 @@ defmodule Flock.Manager do
     else
       {:error, reason} ->
         {:reply, {:error, reason}, state}
+    end
+  end
+  # TODO: Include a function get_name
+  def handle_call({:alive?, name}, _from, state) do
+    case CRDT.get_by(state.active, fn {_m, _a, n} -> n == name end) do
+      {:ok, {_m, _a, ^name}} ->
+        {:reply, true, state}
+      {:error, :not_found} ->
+        {:reply, false, state}
     end
   end
 
