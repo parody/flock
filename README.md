@@ -243,16 +243,16 @@ If the process ends normally it will be removed from the set of alive processes.
 # When should I use it?
 
 Is Flock the same than using a Supervisor? *NO*, we do not provide the same guarantees,
-process are not linked to their fathers
+processes are not linked to their fathers
 therefore spawned processes can be re-started (due to balancing or errors) without
-the father even knowing about it. This implies that if the processes must are
-stateful, they can re-create that state from an external source.
+the father even knowing about it. This implies that if the processes are
+stateful, they must re-create that state from an external source.
 
-Out use case for Flock is the following:
-We have user connecting and disconnecting to our system.
+Our use case for Flock is the following:
+We have users connecting and disconnecting to our system.
 When a user connects, a new process is spawned that is in charge of
 streaming information to that user (a ticker for example). Those processes
-are pretty much independet of each other and from the processe that spawned them.
+are pretty much independet of each other and from the process that spawned them.
 
 First, we want to balance those processes over a (small) number of nodes. This
 is provided by the hash ring.
