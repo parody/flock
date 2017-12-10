@@ -219,8 +219,10 @@ defmodule Flock.Manager do
     end
 
     if length(alive) > 0 do
-      p = Float.round(length(new_local) / length(alive) * 100, 2)
-      debug("node #{node()} has #{p} % of the load")
+      num_active = length(alive)
+      num_local = length(new_local)
+      p = Float.round(num_local / num_active * 100, 2)
+      debug("node #{node()} has #{p} % of the load (#{num_local} out of #{num_active})")
     end
 
     new_local
