@@ -37,7 +37,15 @@ defmodule MyBird do
     {:noreply, s}
   end
 
-  def terminate(msg, test_pid) do
+  def handle_cast(:byebye, s) do
+    {:stop, :normal, s}
+  end
+
+  def terminate(msg, test_pid) when is_pid(test_pid) do
     send(test_pid, {:bird_terminated, msg})
+    :normal
+  end
+  def terminate(:normal, _state) do
+    :normal
   end
 end
