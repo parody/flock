@@ -12,24 +12,24 @@ defmodule Flock do
   @doc """
   Adds a new worker to the flock.
   """
-  @spec start(worker_spec :: Flock.worker_spec()) :: :ok | {:error, :already_exists}
+  @spec start(worker_spec :: worker_spec()) :: :ok | {:error, :already_exists}
   defdelegate start(worker_spec), to: Manager, as: :start_worker
 
   @doc """
   Makes a synchronous call to a worker in the flock.
   """
-  @spec call(name :: Flock.worker_name(), request :: term()) :: any()
+  @spec call(name :: worker_name(), request :: term()) :: any()
   defdelegate call(name, request), to: Manager
 
   @doc """
   Sends an asynchronous request to a worker in the flock.
   """
-  @spec cast(name :: Flock.worker_name(), request :: term()) :: :ok
+  @spec cast(name :: worker_name(), request :: term()) :: :ok
   defdelegate cast(name, request), to: Manager
 
   @doc """
   Stops a worker in the flock.
   """
-  @spec stop(name :: Flock.worker_name()) :: :ok | {:error, :not_found}
+  @spec stop(name :: worker_name()) :: :ok | {:error, :not_found}
   defdelegate stop(name), to: Manager
 end
