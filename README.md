@@ -145,15 +145,56 @@ A CRDT is used to keep track of alive processes. CRDT allow merge the informatio
 of a partition in converging to a *safe* result. Flock uses an Add-Wins Observed/Removed
 set. The curren implementation is a Home-baked less-than-ideal state-based AWORSet.
 
-# Test and benchmarks
+# Test it!
 
-# When should I use it?
+Testing Flock is easy. You need to have Elixir 1.5.2 installed on your system.
+We provide an example `Makefile` to test it.
+
+You will have to open as many terminal sessions as nodes you want to test.
+
+In our case we will try it running:
+* `make node1` on one terminal
+* `make node2` on another terminal
+* `make node3``on a third one
+* `make run` on a fourth terminal. This last command will spawn 100 processes
+(then number can be changed by running `make run num=10`) and balance them
+on the cluster made up by those 4 nodes.
+
+For calling those processes you can run `make run` which will call the local
+and remote processes and tell where they are running.
+
+And example output for `num=10` is:
+```
+19:21:33.165 [debug] bird bird:1 replied :"node1@127.0.0.1"
+19:21:33.170 [debug] bird bird:2 replied :"node2@127.0.0.1"
+19:21:33.175 [debug] bird bird:3 replied :"test@127.0.0.1"
+19:21:33.175 [debug] bird bird:4 replied :"node1@127.0.0.1"
+19:21:33.175 [debug] bird bird:5 replied :"node2@127.0.0.1"
+19:21:33.179 [debug] bird bird:6 replied :"node3@127.0.0.1"
+19:21:33.179 [debug] bird bird:7 replied :"node2@127.0.0.1"
+19:21:33.179 [debug] bird bird:8 replied :"test@127.0.0.1"
+19:21:33.179 [debug] bird bird:9 replied :"node1@127.0.0.1"
+19:21:33.184 [debug] bird bird:10 replied :"call@127.0.0.1"
+```
+You can close any of the terminals and you *should* see the processes that were running
+there being spawned on some other node.
+
+The node reports basic statistics like ` node node3@127.0.0.1 has 20.0 % of the load (2 out of 10)`.
+
+The example processes (`MyBird`) chirp every 10 seconds showing a message to
+keep track of where they are running like:
+```
+19:26:01.561 [info]  bird bird:6 running on node node3@127.0.0.1
+
+```
 
 # Example
 
+# When should I use it?
+
 # Documentation
 
-Complete documentation of the code can be viewed on [https://spawnfest.github.io/flock/]
+Complete (not really) documentation of the code can be viewed on [https://spawnfest.github.io/flock/]
 
 # About the team
 
