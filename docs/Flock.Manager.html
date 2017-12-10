@@ -1,0 +1,471 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Flock.Manager – Flock v0.1.0</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-46dc55d7e8.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar">
+
+  
+  <a href="http://YOUR_PROJECT_HOMEPAGE" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Flock
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.1.0
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+      <h1>
+        <small class="visible-xs">Flock v0.1.0</small>
+        Flock.Manager
+        
+          <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>This is the core module of Flock</p>
+<p>It is in charged of keeping track of alive processes, communicating
+changes to other nodes, and receiving notifications of processes
+ending and updates from another node</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:t/0">t()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#alive?/1">alive?(name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns if the process named <code class="inline">name</code> is alive using local node information</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#call/2">call(name, request)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Call to a worker</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#cast/2">cast(name, request)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Cast to a worker</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#remove/1">remove(name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Removes a process on normal exit</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#start_link/1">start_link(opts)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Starts the Flock.Manager</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#start_worker/1">start_worker(worker_spec)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Spawn a new process</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#stop/1">stop(name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Stops a process</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:t/0">
+  
+  
+  <div class="detail-header">
+    <a href="#t:t/0" class="detail-link" title="Link to this type">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this type</span>
+    </a>
+    <span class="signature">t()</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L18" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>t() :: %Flock.Manager{active: term(), local: list()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="alive?/1">
+  
+  
+  <div class="detail-header">
+    <a href="#alive?/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">alive?(name)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L66" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>alive?(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>()) ::
+  boolean() |
+  {:error, reason :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns if the process named <code class="inline">name</code> is alive using local node information</p>
+
+  </section>
+</div>
+<div class="detail" id="call/2">
+  
+  
+  <div class="detail-header">
+    <a href="#call/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">call(name, request)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L41" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>call(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>(), request :: term()) :: any()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Call to a worker</p>
+
+  </section>
+</div>
+<div class="detail" id="cast/2">
+  
+  
+  <div class="detail-header">
+    <a href="#cast/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">cast(name, request)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L58" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cast(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>(), request :: term()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Cast to a worker</p>
+
+  </section>
+</div>
+<div class="detail" id="remove/1">
+  
+  
+  <div class="detail-header">
+    <a href="#remove/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">remove(name)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L37" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>remove(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>()) :: :ok | {:error, :not_found}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Removes a process on normal exit</p>
+
+  </section>
+</div>
+<div class="detail" id="start_link/1">
+  
+  
+  <div class="detail-header">
+    <a href="#start_link/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">start_link(opts)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L70" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    <p>Starts the Flock.Manager</p>
+
+  </section>
+</div>
+<div class="detail" id="start_worker/1">
+  
+  
+  <div class="detail-header">
+    <a href="#start_worker/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">start_worker(worker_spec)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L29" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>start_worker(worker_spec :: <a href="Flock.html#t:worker_spec/0">Flock.worker_spec</a>()) ::
+  :ok |
+  {:error, :already_exists}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Spawn a new process</p>
+
+  </section>
+</div>
+<div class="detail" id="stop/1">
+  
+  
+  <div class="detail-header">
+    <a href="#stop/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">stop(name)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/manager.ex#L33" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stop(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>()) :: :ok | {:error, :not_found}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Stops a process</p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+
