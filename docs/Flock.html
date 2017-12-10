@@ -8,7 +8,7 @@
     <title>Flock – Flock v0.1.0</title>
     <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
     
-    <script src="dist/sidebar_items-46dc55d7e8.js"></script>
+    <script src="dist/sidebar_items-b4d9a14e32.js"></script>
     
     
     
@@ -77,7 +77,7 @@
 
       
         <section id="moduledoc">
-          <p>Documentation for Flock.</p>
+          <p>Lightweight process registry and forgiving supervisor.</p>
 
         </section>
       
@@ -125,10 +125,37 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#hello/0">hello()</a>
+    <a href="#call/2">call(name, request)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Hello world</p>
+    <div class="summary-synopsis"><p>Makes a synchronous call to a worker in the flock</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#cast/2">cast(name, request)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Sends an asynchronous request to a worker in the flock</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#start/1">start(worker_spec)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds a new worker to the flock</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#stop/1">stop(name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Stops a worker in the flock</p>
 </div>
   
 </div>
@@ -161,7 +188,7 @@
     </a>
     <span class="signature">worker_module()</span>
     
-      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L6" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L8" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -189,7 +216,7 @@
     </a>
     <span class="signature">worker_name()</span>
     
-      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L7" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L9" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -217,7 +244,7 @@
     </a>
     <span class="signature">worker_spec()</span>
     
-      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L8" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L10" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
@@ -249,33 +276,119 @@
             </a>
             Functions
           </h1>
-          <div class="detail" id="hello/0">
+          <div class="detail" id="call/2">
   
   
   <div class="detail-header">
-    <a href="#hello/0" class="detail-link" title="Link to this function">
+    <a href="#call/2" class="detail-link" title="Link to this function">
       <span class="icon-link" aria-hidden="true"></span>
       <span class="sr-only">Link to this function</span>
     </a>
-    <span class="signature">hello()</span>
+    <span class="signature">call(name, request)</span>
     
-      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L19" class="view-source" rel="help" title="View Source">
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L22" class="view-source" rel="help" title="View Source">
        <span class="icon-code" aria-hidden="true"></span>
        <span class="sr-only">View Source</span>
      </a>
     
     
     
+      <div class="specs">
+        
+          <pre>call(name :: <a href="#t:worker_name/0">worker_name</a>(), request :: term()) :: any()</pre>
+        
+      </div>
+    
   </div>
   <section class="docstring">
-    <p>Hello world.</p>
-<h2 id="hello/0-examples" class="section-heading">
-  <a href="#hello/0-examples" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
-  Examples
-</h2>
+    <p>Makes a synchronous call to a worker in the flock.</p>
 
-<pre><code class="iex elixir">iex&gt; Flock.hello
-:world</code></pre>
+  </section>
+</div>
+<div class="detail" id="cast/2">
+  
+  
+  <div class="detail-header">
+    <a href="#cast/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">cast(name, request)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L28" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cast(name :: <a href="#t:worker_name/0">worker_name</a>(), request :: term()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Sends an asynchronous request to a worker in the flock.</p>
+
+  </section>
+</div>
+<div class="detail" id="start/1">
+  
+  
+  <div class="detail-header">
+    <a href="#start/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">start(worker_spec)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L16" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>start(worker_spec :: <a href="#t:worker_spec/0">worker_spec</a>()) :: :ok | {:error, :already_exists}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds a new worker to the flock.</p>
+
+  </section>
+</div>
+<div class="detail" id="stop/1">
+  
+  
+  <div class="detail-header">
+    <a href="#stop/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">stop(name)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock.ex#L34" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stop(name :: <a href="#t:worker_name/0">worker_name</a>()) :: :ok | {:error, :not_found}</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Stops a worker in the flock.</p>
 
   </section>
 </div>

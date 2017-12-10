@@ -8,7 +8,7 @@
     <title>Flock – Flock v0.1.0</title>
     <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
     
-    <script src="dist/sidebar_items-46dc55d7e8.js"></script>
+    <script src="dist/sidebar_items-b4d9a14e32.js"></script>
     
     
     
@@ -69,6 +69,21 @@
 library for Erlang/Elixir applications.</p>
 <p>This project is part of the SpawnFest 2017 contest, a 48hs competition
 so it could contain unimplemented features, surprises and/or bugs.</p>
+<h2 id="installation" class="section-heading">
+  <a href="#installation" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Installation
+</h2>
+
+<p>If <a href="https://hex.pm/docs/publish">available in Hex</a>, the package can be installed
+by adding <code class="inline">flock</code> to your list of dependencies in <code class="inline">mix.exs</code>:</p>
+<pre><code class="elixir">def deps do
+  [
+    {:flock, &quot;~&gt; 0.1.0&quot;}
+  ]
+end</code></pre>
+<p>Documentation can be generated with <a href="https://github.com/elixir-lang/ex_doc">ExDoc</a>
+and published on <a href="https://hexdocs.pm">HexDocs</a>. Once published, the docs can
+be found at <a href="https://hexdocs.pm/flock">https://hexdocs.pm/flock</a>.</p>
 <h1>How it works?</h1>
 <h2 id="new-birds-are-born" class="section-heading">
   <a href="#new-birds-are-born" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
@@ -92,7 +107,7 @@ processes on the right node in case of node failures.</p>
 and processes are migrated to the corresponding available nodes. As a
 consistent hash is used, only some processes will be moved from the
 node. This is, the existing process are killed and restarted somewhere
-else in the cluster. No <code class="inline">handoff</code> mechanism is implemented.</p>
+else in the cluster. No handoff mechanism is implemented.</p>
 <h2 id="birds-fly-away-but-they-have-names" class="section-heading">
   <a href="#birds-fly-away-but-they-have-names" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Birds fly away, but they have names
@@ -195,21 +210,134 @@ goes for stopping or after a graceful exit.</p>
   Hash ring
 </h2>
 
+<p>Processes are assigned to nodes using a consistent hash ring. We are using
+<a href="https://github.com/bitwalker/libring">libring</a> library to this end.</p>
 <h2 id="node-clustering" class="section-heading">
   <a href="#node-clustering" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   Node clustering
 </h2>
 
-<p>It currently uses disterl for cross-node communication.</p>
+<p>Flock is uses disterl for cross-node communication. Node discovery
+is provided by the <a href="https://github.com/bitwalker/libcluster">libcluster</a> library
+also by <a href="https://github.com/bitwalker">bitwalker</a> so double thanks to him.</p>
 <h2 id="crdt" class="section-heading">
   <a href="#crdt" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
   CRDT
 </h2>
 
-<p>Home-baked less-than-ideal state-based CRDT</p>
-<h1>Test and benchmarks</h1>
-<h1>When should I use it?</h1>
+<p>A CRDT is used to keep track of alive processes.
+The CRDT allows to locally merge the alive processes information of a partition and converge to a consistent result avoiding the need for consensus.
+Flock uses an Add-Wins Observed/Removed set.
+The current implementation is a Home-baked less-than-ideal state-based AWORSet.</p>
+<h1>Test it!</h1>
+<p>Testing Flock is easy. You need to have Elixir 1.5.2 installed on your system.
+We provide an example <code class="inline">Makefile</code> to test it.</p>
+<p>You will have to open as many terminal sessions as nodes you want to test.</p>
+<p>In our case we will try it running:</p>
+<ul>
+<li><code class="inline">make node1</code> on one terminal
+</li>
+<li><code class="inline">make node2</code> on another terminal
+</li>
+<li><code class="inline">make node3</code> on a third one
+</li>
+<li><code class="inline">make run</code> on a fourth terminal. This last command will spawn 100 processes
+(then number can be changed by running <code class="inline">make run num=10</code>) and balance them
+on the cluster made up by those 4 nodes.
+</li>
+</ul>
+<p>For calling those processes you can run <code class="inline">make call</code> which will call the local
+and remote processes and tell where they are running.</p>
+<p>And example output for <code class="inline">num=10</code> is:</p>
+<pre><code class="elixir">19:21:33.165 [debug] bird bird:1 replied :&quot;node1@127.0.0.1&quot;
+19:21:33.170 [debug] bird bird:2 replied :&quot;node2@127.0.0.1&quot;
+19:21:33.175 [debug] bird bird:3 replied :&quot;test@127.0.0.1&quot;
+19:21:33.175 [debug] bird bird:4 replied :&quot;node1@127.0.0.1&quot;
+19:21:33.175 [debug] bird bird:5 replied :&quot;node2@127.0.0.1&quot;
+19:21:33.179 [debug] bird bird:6 replied :&quot;node3@127.0.0.1&quot;
+19:21:33.179 [debug] bird bird:7 replied :&quot;node2@127.0.0.1&quot;
+19:21:33.179 [debug] bird bird:8 replied :&quot;test@127.0.0.1&quot;
+19:21:33.179 [debug] bird bird:9 replied :&quot;node1@127.0.0.1&quot;
+19:21:33.184 [debug] bird bird:10 replied :&quot;call@127.0.0.1&quot;</code></pre>
+<p>You can close any of the terminals and you <em>should</em> see the processes that were running
+there being spawned on some other node.</p>
+<p>The node reports basic statistics like <code class="inline">node node3@127.0.0.1 has 20.0 % of the load (2 out of 10)</code>.</p>
+<p>The example processes (<code class="inline">MyBird</code>) chirp every 10 seconds showing a message to
+keep track of where they are running like:</p>
+<pre><code class="elixir">19:26:01.561 [info]  bird bird:6 running on node node3@127.0.0.1</code></pre>
 <h1>Example</h1>
+<p>Flock is <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a>-friendly, you can start/call/cast/stop any GenServer without
+any change. Supose you have a <a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a>:</p>
+<pre><code class="elixir">defmodule MyBird do
+  use GenServer
+
+  require Logger
+
+  def start_link(args),
+    do: GenServer.start_link(__MODULE__, args, [])
+
+  def init(name) do
+    Process.send_after(self(), :chirp, 10_000)
+    {:ok, name}
+  end
+
+  def handle_call(:ping, _from, s) do
+    {:reply, :pong, s}
+  end
+
+  def handle_cast({:please_reply_me, pid, msg}, s) do
+    send(pid, msg)
+    {:noreply, s}
+  end
+  def handle_cast(:byebye, s) do
+    {:stop, :normal, s}
+  end
+
+  def handle_info(:chirp, name) do
+    Logger.info(&quot;bird #{name} running on node #{node()}&quot;)
+    Process.send_after(self(), :chirp, 10_000)
+    {:noreply, name}
+  end
+end</code></pre>
+<p>you can spawn on process by doing:</p>
+<pre><code class="elixir">:ok = Flock.start({MyBird, [&quot;Tweety&quot;], &quot;Tweety&quot;})</code></pre>
+<p>This will start that process on <em>some</em> node after <em>some</em> time (eventually consistency <em>rocks</em>).</p>
+<p>Then you can call that process by name like:</p>
+<pre><code class="elixir">:pong = Flock.call(&quot;Tweety&quot;, :ping)</code></pre>
+<p>If the process ends abnormally it will be restarted by the local or remote supervisor.
+If the process ends normally it will be removed from the set of alive processes.</p>
+<h1>When should I use it?</h1>
+<p>Is Flock the same than using a Supervisor? <em>NO</em>, we do not provide the same guarantees,
+processes are not linked to their fathers
+therefore spawned processes can be re-started (due to balancing or errors) without
+the father even knowing about it. This implies that if the processes are
+stateful, they must re-create that state from an external source.</p>
+<p>Our use case for Flock is the following:
+We have users connecting and disconnecting to our system.
+When a user connects, a new process is spawned that is in charge of
+streaming information to that user (a ticker for example). Those processes
+are pretty much independet of each other and from the process that spawned them.</p>
+<p>First, we want to balance those processes over a (small) number of nodes. This
+is provided by the hash ring.</p>
+<p>Second if a node goes down we want to keep
+streaming data to connected users from another node.
+The process state is re-built from an external database.</p>
+<p>Third, having Flock lets us dinamically add or remove nodes depending on the load of
+the system and also to do software upgrade node by node.</p>
+<h1>Documentation</h1>
+<p>Complete (not really) documentation of the code can be viewed on [https://spawnfest.github.io/flock/]</p>
+<h1>TODO</h1>
+<ul>
+<li><p>Improve the CRDT [https://github.com/spawnfest/flock/issues/9]</p>
+</li>
+<li><p>Include multi-node tests using <a href="https://hexdocs.pm/ex_unit/ExUnit.html"><code class="inline">ExUnit</code></a>.</p>
+</li>
+<li><p>Set the timeout for the anti-entropy as a config.</p>
+</li>
+<li><p>Do some benchmarking comparing remote calls against local calls and against
+direct erlang messaging.</p>
+</li>
+</ul>
 <h1>About the team</h1>
 <p>Brought to you by:</p>
 <ul>
