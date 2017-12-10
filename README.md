@@ -229,7 +229,7 @@ you can spawn on process by doing:
 ```elixir
 :ok = Flock.start({MyBird, ["Tweety"], "Tweety"})
 ```
-This will start that process on *some* node after *some* time (eventually consistency rocks).
+This will start that process on *some* node after *some* time (eventually consistency *rocks*).
 
 Then you can call that process by name like:
 ```elixir
@@ -241,7 +241,7 @@ If the process ends normally it will be removed from the set of alive processes.
 
 # When should I use it?
 
-Is Flock the same than using a Supervisor? *NO*, we do not provide the same guarnatees,
+Is Flock the same than using a Supervisor? *NO*, we do not provide the same guarantees,
 process are not linked to their fathers
 therefore spawned processes can be re-started (due to balancing or errors) without
 the father even knowing about it. This implies that if the processes must are
