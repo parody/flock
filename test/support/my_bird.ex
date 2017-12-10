@@ -13,6 +13,7 @@ defmodule MyBird do
     send(test_pid, spawn_message)
     {:ok, test_pid}
   end
+
   def init(name) do
     Process.send_after(self(), :chirp, 10_000)
     {:ok, name}
@@ -21,12 +22,19 @@ defmodule MyBird do
   def handle_call(:where_are_you?, _from, s) do
     {:reply, node(), s}
   end
+
+  def handle_call(:whereis, _from, s) do
+    {:reply, node(), s}
+  end
+
   def handle_call(:ping, _from, s) do
     {:reply, :pong, s}
   end
+
   def handle_call({:please_reply, msg}, _from, s) do
     {:reply, msg, s}
   end
+
   def handle_call(:please_crash, _from, s) do
     {:stop, :crash_requested, :crashed, s}
   end
@@ -35,9 +43,11 @@ defmodule MyBird do
     send(pid, msg)
     {:noreply, s}
   end
+
   def handle_cast(:hi, s) do
     {:noreply, s}
   end
+
   def handle_cast(:byebye, s) do
     {:stop, :normal, s}
   end
@@ -52,6 +62,7 @@ defmodule MyBird do
     send(test_pid, {:bird_terminated, msg})
     :normal
   end
+
   def terminate(:normal, _name) do
     :normal
   end
