@@ -18,7 +18,7 @@ defmodule Flock.Manager do
   @type t :: %__MODULE__{active: term(), local: list()}
 
   @name __MODULE__
-  @entropy_ms 10_000
+  @entropy_ms 100_000
 
   #
   # API
@@ -115,7 +115,7 @@ defmodule Flock.Manager do
     do
       debug("process removed #{inspect name}")
       Dispatch.broadcast({:update, active})
-      {:reply, :ok, %{state | active: active, local: state.local -- worker}}
+      {:reply, :ok, %{state | active: active, local: state.local -- [worker]}}
     else
       {:error, reason} ->
         {:reply, {:error, reason}, state}
