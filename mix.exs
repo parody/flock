@@ -9,6 +9,15 @@ defmodule Flock.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      # Docs
+      name: "Flock",
+      source_url: "https://github.com/spawnfest/flock",
+      homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
+      docs: [
+        main: "Flock",
+          # logo: "path/to/logo.png",
+        extras: ["README.md"],
+        output: "docs"],
       dialyzer: dialyzer(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test,

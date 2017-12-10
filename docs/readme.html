@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Flock – Flock v0.1.0</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-46dc55d7e8.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="extras">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+<div class="main">
+<button class="sidebar-toggle">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar">
+
+  
+  <a href="http://YOUR_PROJECT_HOMEPAGE" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Flock
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.1.0
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+<h1>Flock</h1>
+<p>Flock is a lightweight process registry and forgiving supervisor
+library for Erlang/Elixir applications.</p>
+<p>This project is part of the SpawnFest 2017 contest, a 48hs competition
+so it could contain unimplemented features, surprises and/or bugs.</p>
+<h1>How it works?</h1>
+<h2 id="new-birds-are-born" class="section-heading">
+  <a href="#new-birds-are-born" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  New birds are born
+</h2>
+
+<blockquote><p>A flock is a group of <em>birds</em> and birds live in <em>nests</em></p>
+</blockquote>
+<p>Flock lets you spawn processes (<em>birds</em>) and decides on which node
+(<em>nest</em>) to run them based on a consistent hash mechanism (a hash
+ring), spreading the load over the cluster nodes and respawning those
+processes on the right node in case of node failures.</p>
+<h2 id="bird-migration" class="section-heading">
+  <a href="#bird-migration" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Bird migration
+</h2>
+
+<blockquote><p>When resources are scarce <em>birds</em> tend to migrate</p>
+</blockquote>
+<p>When a node joins or leaves the cluster the hash ring is rebalanced
+and processes are migrated to the corresponding available nodes. As a
+consistent hash is used, only some processes will be moved from the
+node. This is, the existing process are killed and restarted somewhere
+else in the cluster. No <code class="inline">handoff</code> mechanism is implemented.</p>
+<h2 id="birds-fly-away-but-they-have-names" class="section-heading">
+  <a href="#birds-fly-away-but-they-have-names" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Birds fly away, but they have names
+</h2>
+
+<blockquote><p>If you love them set them free…</p>
+</blockquote>
+<p>The spawned processes are <strong>NOT</strong> linked to their fathers. You can
+communicate with them by a <em>required</em> name. This name is only valid
+inside Flock (it is not registered on the BEAM).</p>
+<h2 id="birdwatching-is-very-popular" class="section-heading">
+  <a href="#birdwatching-is-very-popular" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Birdwatching is very popular
+</h2>
+
+<blockquote><p>Can your son distinguish his pet canary from another?</p>
+</blockquote>
+<p>Flock processes are supervised locally on the node. If a process ends
+abnormally, the supervisor will restart it. The newly started
+processed will have the same name but it will not have the same state
+than it’s predecessor. This issue may be solved by recreating the
+process state from an external <em>source of truth</em>.</p>
+<h2 id="all-animals-are-mortal-birds-are-animals-ergo-they-are-mortal" class="section-heading">
+  <a href="#all-animals-are-mortal-birds-are-animals-ergo-they-are-mortal" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  All animals are mortal, birds are animals, ergo they are mortal
+</h2>
+
+<blockquote><p>Dig a hole in your back yard</p>
+</blockquote>
+<p>When a process ends gracefully (with a <code class="inline">:normal</code> exit status) it is
+removed from the set of alive processes.</p>
+<h2 id="i-spot-a-bird" class="section-heading">
+  <a href="#i-spot-a-bird" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  I spot a bird!
+</h2>
+
+<blockquote><p>If you know the name of a bird you can call it</p>
+</blockquote>
+<p>Flock provides <code class="inline">call</code> and <code class="inline">cast</code> much like the one in the
+<a href="https://hexdocs.pm/elixir/GenServer.html"><code class="inline">GenServer</code></a>. The request is routed to the correct node and then to
+your process.</p>
+<h2 id="lets-go-hunting" class="section-heading">
+  <a href="#lets-go-hunting" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Lets go hunting
+</h2>
+
+<blockquote><p>If the canary is gone, get out of the mine</p>
+</blockquote>
+<p>You can tell Flock to deliberately kill a process with <code class="inline">stop</code>.</p>
+<h2 id="one-flock-plus-another-flock-makes-one-flock" class="section-heading">
+  <a href="#one-flock-plus-another-flock-makes-one-flock" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  One flock plus another flock makes one flock
+</h2>
+
+<blockquote><p>Two flocks form a bigger flock</p>
+</blockquote>
+<p>A big issue in distributed systems is how to react to network
+partitions. Flock favors availability over consistency, i.e. it stands
+on the AP side. If the cluster is under a split-brain situation Flock
+will run <strong>one</strong> instance of each process on each side of the
+partition. Processes created on one side of the partition will not be
+started on the other side. The same goes for stopping a process.</p>
+<p>When the cluster is healed the processes from each side are
+merged. Afterwards, only one instance of each process is run.</p>
+<p>A partition or a re-grouping adds/removes nodes to the cluster, so at
+this point the processes are rebalanced with the new cluster state.</p>
+<h1>Architecture</h1>
+<h2 id="isn-t-this-a-hard-problem-to-solve" class="section-heading">
+  <a href="#isn-t-this-a-hard-problem-to-solve" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Isn’t this a hard problem to solve?
+</h2>
+
+<p><strong>Yes</strong>, it is a very hard problem to solve, but we have relaxed some
+guarantees:</p>
+<ul>
+<li><p>Processes are not remotely monitored (cross node) but locally.</p>
+</li>
+<li><p>Starting a process only guarantees that the local node is aware of
+your request. The process is <strong>NOT</strong> started after the
+call. Eventually the new process will be known to all nodes and
+the node responsible for that process will start it.</p>
+</li>
+<li><p>Stopping processes has the same behavior than starting them, the
+process is <strong>NOT</strong> stopped after the call but it will eventually
+be stopped.</p>
+</li>
+<li><p>You never talk directly to your process but thorough Flock. This
+may add some overhead.</p>
+</li>
+<li><p>Processes may resurrect or out-live a stop. As changes in the
+cluster are transmitted with eventual consistency, some
+information may be lost. For example if you start a process and
+your node goes down, it may have not communicated those changes to
+other nodes, so the process won’t be started in any node. The same
+goes for stopping or after a graceful exit.</p>
+</li>
+</ul>
+<h2 id="hash-ring" class="section-heading">
+  <a href="#hash-ring" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Hash ring
+</h2>
+
+<h2 id="node-clustering" class="section-heading">
+  <a href="#node-clustering" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  Node clustering
+</h2>
+
+<p>It currently uses disterl for cross-node communication.</p>
+<h2 id="crdt" class="section-heading">
+  <a href="#crdt" class="hover-link"><span class="icon-link" aria-hidden="true"></span></a>
+  CRDT
+</h2>
+
+<p>Home-baked less-than-ideal state-based CRDT</p>
+<h1>Test and benchmarks</h1>
+<h1>When should I use it?</h1>
+<h1>Example</h1>
+<h1>About the team</h1>
+<p>Brought to you by:</p>
+<ul>
+<li><a href="https://github.com/germanbotto">Germán Botto</a>
+</li>
+<li><a href="https://github.com/rosacris">Cristian Rosa</a>
+</li>
+<li><a href="https://github.com/fbergero">Federico Bergero</a>
+</li>
+<li><a href="https://github.com/arpunk">Ricardo Lanziano</a>
+</li>
+</ul>
+
+      <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+

@@ -1,0 +1,306 @@
+    <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.18.1">
+    <title>Flock.WorkerMonitor – Flock v0.1.0</title>
+    <link rel="stylesheet" href="dist/app-c922dbe7ef.css" />
+    
+    <script src="dist/sidebar_items-46dc55d7e8.js"></script>
+    
+    
+    
+    
+  </head>
+  <body data-type="modules">
+    <script>try { if(localStorage.getItem('night-mode')) document.body.className += ' night-mode'; } catch (e) { }</script>
+
+    <div class="main">
+<button class="sidebar-toggle">
+  <span class="icon-menu" aria-hidden="true"></span>
+  <span class="sr-only">Toggle Sidebar</span>
+</button>
+<section class="sidebar">
+
+  
+  <a href="http://YOUR_PROJECT_HOMEPAGE" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        Flock
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.1.0
+      </h2>
+    </div>
+    
+  </a>
+
+  <form class="sidebar-search" action="search.html">
+    <button type="submit" class="search-button">
+      <span class="icon-search" aria-hidden="true"></span>
+    </button>
+    <input name="q" type="text" id="search-list" class="search-input" placeholder="search" aria-label="Search" autocomplete="off" />
+  </form>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+      <h1>
+        <small class="visible-xs">Flock v0.1.0</small>
+        Flock.WorkerMonitor
+        
+          <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/worker_monitor.ex#L1" title="View Source" class="view-source" rel="help">
+            <span class="icon-code" aria-hidden="true"></span>
+            <span class="sr-only">View Source</span>
+          </a>
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>This module is intended to take care of one bird in the flock</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Summary
+          </h1>
+          
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#call_worker/3">call_worker(name, msg, timeout \\ 5000)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Send <code class="inline">msg</code> to <code class="inline">name</code> and return the response</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#cast_worker/2">cast_worker(name, msg)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Cast <code class="inline">msg</code> to <code class="inline">name</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#start_worker/1">start_worker(worker_spec)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Spawn a new worker based on <code class="inline">worker_spec</code></p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#whereis/1">whereis(worker_name)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Returns the <code class="inline">pid</code> of a worker or <code class="inline">:not_found</code> if no process is associated with the given <code class="inline">worker_name</code></p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+        </section>
+      
+
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <span class="icon-link" aria-hidden="true"></span>
+              <span class="sr-only">Link to this section</span>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="call_worker/3">
+  
+  
+    <span id="call_worker/2"></span>
+  
+  <div class="detail-header">
+    <a href="#call_worker/3" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">call_worker(name, msg, timeout \\ 5000)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/worker_monitor.ex#L28" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>call_worker(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>(), msg :: any(), timeout :: pos_integer() | :infinity) :: term()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Send <code class="inline">msg</code> to <code class="inline">name</code> and return the response</p>
+<p>The call will block <code class="inline">timeout</code> milliseconds before returning</p>
+
+  </section>
+</div>
+<div class="detail" id="cast_worker/2">
+  
+  
+  <div class="detail-header">
+    <a href="#cast_worker/2" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">cast_worker(name, msg)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/worker_monitor.ex#L38" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>cast_worker(name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>(), msg :: any()) :: :ok</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Cast <code class="inline">msg</code> to <code class="inline">name</code></p>
+<p>This is the homologous to <a href="https://hexdocs.pm/elixir/GenServer.html#cast/2"><code class="inline">GenServer.cast/2</code></a></p>
+
+  </section>
+</div>
+<div class="detail" id="start_worker/1">
+  
+  
+  <div class="detail-header">
+    <a href="#start_worker/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">start_worker(worker_spec)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/worker_monitor.ex#L18" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>start_worker(worker_spec :: <a href="Flock.html#t:worker_spec/0">Flock.worker_spec</a>()) :: <a href="https://hexdocs.pm/elixir/GenServer.html#t:on_start/0">GenServer.on_start</a>()</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Spawn a new worker based on <code class="inline">worker_spec</code></p>
+
+  </section>
+</div>
+<div class="detail" id="whereis/1">
+  
+  
+  <div class="detail-header">
+    <a href="#whereis/1" class="detail-link" title="Link to this function">
+      <span class="icon-link" aria-hidden="true"></span>
+      <span class="sr-only">Link to this function</span>
+    </a>
+    <span class="signature">whereis(worker_name)</span>
+    
+      <a href="https://github.com/spawnfest/flock/blob/master/lib/flock/worker_monitor.ex#L46" class="view-source" rel="help" title="View Source">
+       <span class="icon-code" aria-hidden="true"></span>
+       <span class="sr-only">View Source</span>
+     </a>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>whereis(worker_name :: <a href="Flock.html#t:worker_name/0">Flock.worker_name</a>()) :: pid() | :not_found</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Returns the <code class="inline">pid</code> of a worker or <code class="inline">:not_found</code> if no process is associated with the given <code class="inline">worker_name</code></p>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.18.1),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle"><span class="sr-only">Switch theme</span></button>
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-778c9ef903.js"></script>
+  
+  
+  
+  
+  </body>
+</html>
+
