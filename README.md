@@ -191,7 +191,7 @@ keep track of where they are running like:
 
 Flock is `GenServer`-friendly, you can start/call/cast/stop any GenServer without
 any change. Supose you have a `GenServer`:
-```
+```elixir
 defmodule MyBird do
   use GenServer
 
