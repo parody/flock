@@ -40,7 +40,8 @@ defmodule Flock.Mixfile do
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.7", only: :test},
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
-      {:ex_doc, "~> 0.18", only: [:dev, :test]}
+      {:ex_doc, "~> 0.18", only: [:dev, :test]},
+      {:uuid, "~> 1.1"},
     ]
   end
 
