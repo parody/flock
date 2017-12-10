@@ -42,7 +42,7 @@ When a node joins or leaves the cluster the hash ring is rebalanced
 and processes are migrated to the corresponding available nodes. As a
 consistent hash is used, only some processes will be moved from the
 node. This is, the existing process are killed and restarted somewhere
-else in the cluster. No `handoff` mechanism is implemented.
+else in the cluster. No handoff mechanism is implemented.
 
 ## Birds fly away, but they have names
 
@@ -156,12 +156,12 @@ You will have to open as many terminal sessions as nodes you want to test.
 In our case we will try it running:
 * `make node1` on one terminal
 * `make node2` on another terminal
-* `make node3``on a third one
+* `make node3` on a third one
 * `make run` on a fourth terminal. This last command will spawn 100 processes
 (then number can be changed by running `make run num=10`) and balance them
 on the cluster made up by those 4 nodes.
 
-For calling those processes you can run `make run` which will call the local
+For calling those processes you can run `make call` which will call the local
 and remote processes and tell where they are running.
 
 And example output for `num=10` is:
@@ -186,16 +186,98 @@ The example processes (`MyBird`) chirp every 10 seconds showing a message to
 keep track of where they are running like:
 ```
 19:26:01.561 [info]  bird bird:6 running on node node3@127.0.0.1
-
 ```
 
 # Example
 
+Flock is `GenServer`-friendly, you can start/call/cast/stop any GenServer without
+any change. Supose you have a `GenServer`:
+```elixir
+defmodule MyBird do
+  use GenServer
+
+  require Logger
+
+  def start_link(args),
+    do: GenServer.start_link(__MODULE__, args, [])
+
+  def init(name) do
+    Process.send_after(self(), :chirp, 10_000)
+    {:ok, name}
+  end
+
+  def handle_call(:ping, _from, s) do
+    {:reply, :pong, s}
+  end
+
+  def handle_cast({:please_reply_me, pid, msg}, s) do
+    send(pid, msg)
+    {:noreply, s}
+  end
+  def handle_cast(:byebye, s) do
+    {:stop, :normal, s}
+  end
+
+  def handle_info(:chirp, name) do
+    Logger.info("bird #{name} running on node #{node()}")
+    Process.send_after(self(), :chirp, 10_000)
+    {:noreply, name}
+  end
+end
+```
+
+you can spawn on process by doing:
+```elixir
+:ok = Flock.start({MyBird, ["Tweety"], "Tweety"})
+```
+This will start that process on *some* node after *some* time (eventually consistency rocks).
+
+Then you can call that process by name like:
+```elixir
+:pong = Flock.call("Tweety", :ping)
+```
+
+If the process ends abnormally it will be restarted by the local or remote supervisor.
+If the process ends normally it will be removed from the set of alive processes.
+
 # When should I use it?
+
+Is Flock the same than using a Supervisor? *NO*, we do not provide the same guarnatees,
+process are not linked to their fathers
+therefore spawned processes can be re-started (due to balancing or errors) without
+the father even knowing about it. This implies that if the processes must are
+stateful, they can re-create that state from an external source.
+
+Out use case for Flock is the following:
+We have user connecting and disconnecting to our system.
+When a user connects, a new process is spawned that is in charge of
+streaming information to that user (a ticker for example). Those processes
+are pretty much independet of each other and from the processe that spawned them.
+
+First, we want to balance those processes over a (small) number of nodes. This
+is provided by the hash ring.
+
+Second if a node goes down we want to keep
+streaming data to connected users from another node.
+The process state is re-built from an external database.
+
+Third, having Flock lets us dinamically add or remove nodes depending on the load of
+the system and also to do software upgrade node by node.
 
 # Documentation
 
 Complete (not really) documentation of the code can be viewed on [https://spawnfest.github.io/flock/]
+
+# TODO
+
+* Improve the CRDT [https://github.com/spawnfest/flock/issues/9]
+
+* Include multi-node tests using `ExUnit`.
+
+* Set the timeout for the anti-entropy as a config.
+
+* Do some benchmarking comparing remote calls against local calls and against
+direct erlang messaging.
 
 # About the team
 
