@@ -155,7 +155,7 @@ You will have to open as many terminal sessions as nodes you want to test.
 In our case we will try it running:
 * `make node1` on one terminal
 * `make node2` on another terminal
-* `make node3``on a third one
+* `make node3` on a third one
 * `make run` on a fourth terminal. This last command will spawn 100 processes
 (then number can be changed by running `make run num=10`) and balance them
 on the cluster made up by those 4 nodes.
@@ -185,10 +185,61 @@ The example processes (`MyBird`) chirp every 10 seconds showing a message to
 keep track of where they are running like:
 ```
 19:26:01.561 [info]  bird bird:6 running on node node3@127.0.0.1
-
 ```
 
 # Example
+
+Flock is `GenServer`-friendly, you can start/call/cast/stop any GenServer without
+any change. Supose you have a `GenServer`:
+```
+defmodule MyBird do
+  use GenServer
+
+  require Logger
+
+  def start_link(args),
+    do: GenServer.start_link(__MODULE__, args, [])
+
+  def init(name) do
+    Process.send_after(self(), :chirp, 10_000)
+    {:ok, name}
+  end
+
+  def handle_call(:ping, _from, s) do
+    {:reply, :pong, s}
+  end
+
+  def handle_cast({:please_reply_me, pid, msg}, s) do
+    send(pid, msg)
+    {:noreply, s}
+  end
+  def handle_cast(:byebye, s) do
+    {:stop, :normal, s}
+  end
+
+  def handle_info(:chirp, name) do
+    Logger.info("bird #{name} running on node #{node()}")
+    Process.send_after(self(), :chirp, 10_000)
+    {:noreply, name}
+  end
+end
+```
+
+you can spawn on process by doing:
+```
+:ok = Flock.start({MyBird, ["Tweety"], "Tweety"})
+```
+This will start that process on *some* node after *some* time (eventually consistency rocks).
+
+Then you can call that process by name like:
+```
+:pong = Flock.call("Tweety", :ping)
+```
+
+If the process ends abnormally it will be restarted by the local or remote supervisor.
+If the process ends normally it will be removed from the set of alive processes.
+
+
 
 # When should I use it?
 
