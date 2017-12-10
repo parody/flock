@@ -160,7 +160,7 @@ In our case we will try it running:
 (then number can be changed by running `make run num=10`) and balance them
 on the cluster made up by those 4 nodes.
 
-For calling those processes you can run `make run` which will call the local
+For calling those processes you can run `make call` which will call the local
 and remote processes and tell where they are running.
 
 And example output for `num=10` is:
