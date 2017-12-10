@@ -6,6 +6,24 @@ library for Erlang/Elixir applications.
 This project is part of the SpawnFest 2017 contest, a 48hs competition
 so it could contain unimplemented features, surprises and/or bugs.
 
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `flock` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:flock, "~> 0.1.0"}
+  ]
+end
+```
+
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at [https://hexdocs.pm/flock](https://hexdocs.pm/flock).
+
+
 # How it works?
 
 ## New birds are born
