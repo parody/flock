@@ -23,7 +23,6 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/flock](https://hexdocs.pm/flock).
 
-
 # How it works?
 
 ## New birds are born
@@ -151,6 +150,10 @@ set. The curren implementation is a Home-baked less-than-ideal state-based AWORS
 # When should I use it?
 
 # Example
+
+# Documentation
+
+Complete documentation of the code can be viewed on [https://spawnfest.github.io/flock/]
 
 # About the team
 
