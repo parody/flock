@@ -34,7 +34,8 @@ defmodule Flock.Mixfile do
 
       # Development tooling
       {:dialyxir, "~> 0.5", only: [:dev, :test]},
-      {:ex_doc, "~> 0.18", only: [:dev, :test]}
+      {:ex_doc, "~> 0.18", only: [:dev, :test]},
+      {:uuid, "~> 1.1"},
     ]
   end
 
