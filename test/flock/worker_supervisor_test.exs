@@ -1,6 +1,6 @@
 defmodule Flock.WorkerSupervisorTest do
   use ExUnit.Case
-  
+
   alias Flock.{WorkerSupervisor, WorkerMonitor}
 
   test "supervisor is supervising" do
