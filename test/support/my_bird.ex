@@ -11,8 +11,13 @@ defmodule MyBird do
     send(test_pid, spawn_message)
     {:ok, test_pid}
   end
+
   def init(_init) do
     {:ok, nil}
+  end
+
+  def handle_call(:ping, _from, s) do
+    {:reply, :pong, s}
   end
 
   def handle_call({:please_reply, msg}, _from, s) do
@@ -25,6 +30,10 @@ defmodule MyBird do
 
   def handle_cast({:please_reply_me, pid, msg}, s) do
     send(pid, msg)
+    {:noreply, s}
+  end
+
+  def handle_cast(:hi, s) do
     {:noreply, s}
   end
 
