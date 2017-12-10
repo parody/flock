@@ -52,21 +52,10 @@ defmodule Flock.CRDT do
     end
   end
 
-  @doc "Remove an `element` from the CRDT using a fun as filter"
-  @spec remove_by(__MODULE__.t(), predicate :: fun()) :: __MODULE__.t() | {:error, :not_found}
-  def remove_by(%__MODULE__{} = set, predicate) do
-    case Enum.filter(set.added, predicate) do
-      [] ->
-        {:error, :not_found}
-      removed ->
-        %__MODULE__{set | added: (set.added -- removed), removed: (set.removed ++ removed)}
-    end
-  end
-
   @doc "Get an `element` from the CRDT using a fun as filter"
   @spec get_by(__MODULE__.t(), predicate :: fun()) :: {:ok, any()} | {:error, :not_found}
   def get_by(%__MODULE__{} = set, predicate) do
-    case Enum.filter(set.added, predicate) do
+    case filter(set.added, predicate) do
       [] -> {:error, :not_found}
       element -> {:ok, element}
     end
@@ -96,10 +85,10 @@ defmodule Flock.CRDT do
   end
 
   defp get_all(set, element) do
-    Enum.filter(set, fn {id, e} -> e == element end)
+    Enum.filter(set, fn {_id, e} -> e == element end)
   end
 
   defp filter(set, predicate) do
-    Enum.filter(set, fn {id, e} -> predicate.(e) end)
+    Enum.filter(set, fn {_id, e} -> predicate.(e) end)
   end
 end
