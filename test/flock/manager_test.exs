@@ -14,7 +14,7 @@ defmodule Flock.ManagerTest do
 
   test "calling a worker" do
     assert :ok = Manager.start_worker({MyBird, [], :birdy})
-    assert :pong = Manager.call(MyBird, :ping)
+    assert :pong = Manager.call(:birdy, :ping)
   end
 
   test "casting a worker" do
@@ -34,5 +34,4 @@ defmodule Flock.ManagerTest do
   test "stoping an unknow worker" do
     assert {:error, :not_found} = Manager.stop(:dummy)
   end
-
 end

@@ -1,61 +1,73 @@
 defmodule Flock.Manager do
   @moduledoc """
-  This is the core module of Flock.
-  It is in charged of keeping track of alive processes, communicating changes
-  to other nodes, and receiving notifications of processes ending and updates
-  from another node
+  This is the core module of Flock
+
+  It is in charged of keeping track of alive processes, communicating
+  changes to other nodes, and receiving notifications of processes
+  ending and updates from another node
   """
 
   use GenServer
 
-  alias Flock.{CRDT, Dispatch, Ring, WorkerSupervisor}
+  alias Flock.{CRDT, Dispatch, Ring, WorkerSupervisor, WorkerMonitor}
 
   require Logger
 
   defstruct [:active, :local]
 
-  @type t :: %__MODULE__{active: Ring.t(), local: list()}
+  @type t :: %__MODULE__{active: term(), local: list()}
 
   @name __MODULE__
   @entropy_ms 10_000
 
-  ##
-  ## Public API
-  ##
+  #
+  # API
+  #
+
   @doc "Spawn a new process"
   @spec start_worker(worker_spec :: Flock.worker_spec()) :: :ok | {:error, :already_exists}
-  def start_worker(worker_spec),
-    do: GenServer.call(@name, {:start_worker, worker_spec})
+  def start_worker(worker_spec), do: GenServer.call(@name, {:start_worker, worker_spec})
 
   @doc "Stops a process"
   @spec stop(name :: Flock.worker_name()) :: :ok | {:error, :not_found}
-  def stop(name),
-    do: GenServer.call(@name, {:stop_worker, name})
+  def stop(name), do: GenServer.call(@name, {:stop_worker, name})
 
   @doc "Call to a worker"
   @spec call(name :: Flock.worker_name(), request :: term()) :: any()
   def call(name, request) do
-    :ok
+    {:ok, n} = Ring.get_node(name)
+
+    case :rpc.call(n, WorkerMonitor, :call_worker, [name, request]) do
+      {:badrpc, {:EXIT, {:noproc, _}}} ->
+        {:error, :not_found}
+
+      {:badrpc, error} ->
+        {:error, error}
+
+      response ->
+        response
+    end
   end
 
   @doc "Cast to a worker"
   @spec cast(name :: Flock.worker_name(), request :: term()) :: :ok
   def cast(name, request) do
+    {:ok, n} = Ring.get_node(name)
+    true = :rpc.cast(n, WorkerMonitor, :cast_worker, [name, request])
     :ok
   end
 
+  def start_link(opts), do: GenServer.start_link(__MODULE__, opts, name: @name)
 
-  ##
-  ## GenServer callbacks
-  ##
-  def start_link(opts),
-    do: GenServer.start_link(__MODULE__, opts, name: @name)
+  #
+  # GenServer callbacks
+  #
 
   def init(_opts) do
-    debug("Flock starting on node #{node()}")
+    debug("starting on node #{node()}")
 
     # Receive node up/down messages.
-    :net_kernel.monitor_nodes(true)
+    _ = :net_kernel.monitor_nodes(true)
 
     # Initially the ring is built with the connected nodes and the local
     # node.
@@ -67,63 +79,74 @@ defmodule Flock.Manager do
     {:ok, %__MODULE__{active: CRDT.new(), local: []}}
   end
 
-  def handle_info(:anti_entropy, state) do
-    debug("Flock performing anti_entropy on node #{node()}")
+  def handle_call({:start_worker, {_module, _args, name} = worker_spec}, _from, state) do
+    case CRDT.add(state.active, worker_spec) do
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
 
-    Dispatch.broadcast({:update, state.active})
-
-    setup_anti_entropy_timer()
-
-    {:noreply, state}
+      active ->
+        debug("new process created #{inspect(name)}")
+        local = rebalance(active, state.local)
+        Dispatch.broadcast({:update, active})
+        {:reply, :ok, %{state | active: active, local: local}}
+    end
   end
-  def handle_info({up_down, n}, state)  when up_down in ~w(nodeup nodedown)a do
+
+  def handle_call({:stop_worker, name}, _from, state) do
+    case CRDT.remove_by(state.active, fn {_m, _a, n} -> n == name end) do
+      {:error, reason} ->
+        {:reply, {:error, reason}, state}
+
+      active ->
+        debug("process stopped #{inspect(name)}")
+        Dispatch.broadcast({:update, active})
+        local = rebalance(active, state.local)
+        {:reply, :ok, %{state | active: active, local: local}}
+    end
+  end
+
+  def handle_info({up_down, n}, state) when up_down in ~w(nodeup nodedown)a do
     case up_down do
       :nodeup ->
         Dispatch.forward(n, {:update, state.active})
         debug("connected to a new node #{n}")
         Ring.add_node(n)
+
       :nodedown ->
         debug("node #{n} went down or is unreachable")
         Ring.remove_node(n)
     end
+
     local = rebalance(state.active, state.local)
 
     {:noreply, %{state | local: local}}
   end
+
+  #
+  # Internal flock messages
+  #
+
+  def handle_info({:"$flock", :anti_entropy}, state) do
+    debug("performing anti_entropy on node #{node()}")
+
+    Dispatch.broadcast({:update, state.active})
+    setup_anti_entropy_timer()
+
+    {:noreply, state}
+  end
+
   def handle_info({:"$flock", n, {:update, set}}, state) do
-    debug("received update from #{inspect n}")
+    debug("received updated set from #{n}")
+
     active = CRDT.join(set, state.active)
     local = rebalance(active, state.local)
 
     {:noreply, %{state | active: active, local: local}}
   end
 
-  def handle_call({:start_worker, {_module, _args, name} = worker_spec}, _from, state) do
-    case CRDT.add(state.active, worker_spec) do
-      {:error, reason} ->
-        {:reply, {:error, reason}, state}
-      active ->
-        debug("new process created #{inspect name}")
-        local = rebalance(active, state.local)
-        Dispatch.broadcast({:update, active})
-        {:reply, :ok, %{state | active: active, local: local}}
-    end
-  end
-  def handle_call({:stop_worker, name}, _from, state) do
-    case CRDT.remove_by(state.active, fn {_m, _a, n} -> n == name end) do
-      {:error, reason} ->
-        {:reply, {:error, reason}, state}
-      active ->
-        debug("process stopped #{inspect name}")
-        Dispatch.broadcast({:update, active})
-        local = rebalance(active, state.local)
-        {:reply, :ok, %{state | active: active, local: local}}
-    end
-  end
-
-  ##
-  ## Internal functions
-  ##
+  #
+  # Internal functions
+  #
 
   # Compute which workers must be running on the local node.
   defp mine(active) do
@@ -139,22 +162,30 @@ defmodule Flock.Manager do
     new_local = mine(alive)
     # Kill the workers on this node because they have migrated to some other
     # node.
-    for {_module, _args, name} <- (local -- new_local) do
+    for {_module, _args, name} <- local -- new_local do
       debug("killing process #{name}")
       :ok = WorkerSupervisor.terminate_worker(name)
     end
 
     # Start the new workers that after the node up/down are migrated to the
     # local node.
-    for {module, args, name} <- (new_local -- local) do
+    for {module, args, name} <- new_local -- local do
       debug("starting process #{name}")
-      {:ok, _pid} = WorkerSupervisor.start_worker({module, args, name})
+
+      case WorkerSupervisor.start_worker({module, args, name}) do
+        {:ok, _pid} ->
+          :ok
+
+        {:error, {:already_started, pid}} ->
+          Logger.error("#{inspect(pid)} in #{inspect(node(pid))}")
+      end
     end
 
     if length(alive) > 0 do
       p = Float.round(length(new_local) / length(alive) * 100, 2)
       debug("node #{node()} has #{p} % of the load")
     end
+
     new_local
   end
 
@@ -164,10 +195,8 @@ defmodule Flock.Manager do
   # Send an auto-message after @entropy_ms ms
   # TODO: make this timeout random so different nodes do not resonate.
   defp setup_anti_entropy_timer(),
-    do: Process.send_after(self(), :anti_entropy, @entropy_ms)
+    do: Process.send_after(self(), {:"$flock", :anti_entropy}, @entropy_ms)
 
   # Format a debug message
   defp debug(msg), do: Logger.warn("[#{@name}] #{msg}")
 end
-
-
