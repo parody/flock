@@ -125,10 +125,9 @@ defmodule Flock.Manager do
   def handle_info({up_down, n}, state) when up_down in ~w(nodeup nodedown)a do
     case up_down do
       :nodeup ->
-        Dispatch.forward(n, {:update, state.active})
         debug("connected to a new node #{n}")
         Ring.add_node(n)
-
+        Process.send_after(self(), {:"$flock", :anti_entropy, n}, 500)
       :nodedown ->
         debug("node #{n} went down or is unreachable")
         Ring.remove_node(n)
@@ -143,6 +142,12 @@ defmodule Flock.Manager do
   # Internal flock messages
   #
 
+  def handle_info({:"$flock", :anti_entropy, n}, state) do
+    debug("sending updates to new node #{n}")
+
+    Dispatch.forward(n, {:update, state.active})
+    {:noreply, state}
+  end
   def handle_info({:"$flock", :anti_entropy}, state) do
     debug("performing anti_entropy on node #{node()}")
 
