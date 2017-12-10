@@ -142,7 +142,7 @@ also by [bitwalker](https://github.com/bitwalker) so double thanks to him.
 ## CRDT
 
 A CRDT is used to keep track of alive processes.
-The CRDT allows to locally merge the alive processes information of a partition and converge to a consistent result avoiding the need for consensus
+The CRDT allows to locally merge the alive processes information of a partition and converge to a consistent result avoiding the need for consensus.
 Flock uses an Add-Wins Observed/Removed set.
 The current implementation is a Home-baked less-than-ideal state-based AWORSet.
 
